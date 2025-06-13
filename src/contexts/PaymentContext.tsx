@@ -38,12 +38,13 @@ const PaymentProvider = ({ children }: { children: ReactNode }) => {
     setIsProcessingPayment(true);
 
     try {
-      console.log(paymentData)
+      console.log(paymentData);
       const { data } = await axios.post("/user/transactions/", paymentData);
       console.log(data);
       toast.success(data?.detail || "Payment Successfull", {
         position: "top-center",
       });
+      window.location.reload();
     } catch (err: any) {
       console.error(err);
       const errorMsg = errorHandler(err);

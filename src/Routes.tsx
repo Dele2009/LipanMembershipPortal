@@ -82,7 +82,7 @@ function AppRoutes() {
         <Route path="verify-email/:token" element={<EmailVerificationPage />} />
       </Route>
       <Route
-        path="/registration-success/:email"
+        path="/registration-success"
         element={<RegistrationSuccessPage />}
       />
       <Route path="/getting-started" element={<PricingPage />} />

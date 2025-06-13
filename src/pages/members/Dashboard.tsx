@@ -42,10 +42,10 @@ function MemberDashboard() {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const [statResponse, eventsResponse, profileResponse] = await Promise.all(
+      const [statResponse, profileResponse] = await Promise.all(
         [
           axios.get("/user/stats/"),
-          axios.get("/events/me/?type=upcoming"),
+          // axios.get("/events/me/?type=upcoming"),
           axios.get("/auth/user/"),
         ]
       );
@@ -63,7 +63,7 @@ function MemberDashboard() {
       ]);
       console.log(profileRes, completion);
       setProfileCompletion(completion);
-      setEvents(eventsResponse.data.slice(0, 2));
+      // setEvents(eventsResponse.data.slice(0, 2));
       setDashboard(statResponse.data);
       setLoading(false);
 
@@ -269,7 +269,7 @@ function MemberDashboard() {
         </div>
 
         {/* Upcoming Events */}
-        <Card className="p-6 shadow-md">
+        {/* <Card className="p-6 shadow-md">
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
             Upcoming Events
           </h2>
@@ -305,7 +305,7 @@ function MemberDashboard() {
               ))}
             </Table.Body>
           </Table>
-        </Card>
+        </Card> */}
 
         {/* Quick Actions */}
         <Card className="p-6 shadow-md">

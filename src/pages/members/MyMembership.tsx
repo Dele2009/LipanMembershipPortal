@@ -12,7 +12,10 @@ type DetailsType = {
   membership: {
     id: number;
     name: string;
-    benefits: any[];
+    permissions: {
+      key: string;
+      label: string;
+    }[];
   } | null;
   membershipStart: string;
   membershipEnd: string;
@@ -23,7 +26,7 @@ type DetailsType = {
 };
 
 const MyMembershipPage = () => {
-  // const { openMembershipModal } = usePayment();
+  const {openMembershipModal} = usePayment();
   const [isFetching, setIsFetching] = useState(true);
   const [pageDetails, setPageDetails] = useState<DetailsType>({
     membership: null,
@@ -35,14 +38,17 @@ const MyMembershipPage = () => {
     membershipProgress: 0,
   });
 
-  const getMembershipProgress = (membershipStart: string, membershipEnd: string) => {
+  const getMembershipProgress = (
+    membershipStart: string,
+    membershipEnd: string
+  ) => {
     const start = new Date(membershipStart).getTime();
     const end = new Date(membershipEnd).getTime();
     const now = Date.now();
-  
+
     if (now <= start) return 0;
     if (now >= end) return 100;
-  
+
     const total = end - start;
     const elapsed = now - start;
     return Math.round((elapsed / total) * 100);
@@ -52,7 +58,7 @@ const MyMembershipPage = () => {
     setIsFetching(true);
     try {
       const { data } = await axios.get("/accounts/user/membership/");
-      // console.log(data)
+      console.log(data);
       setPageDetails({
         membership: data.membership,
         isMembershipActive: data.is_active,
@@ -60,15 +66,16 @@ const MyMembershipPage = () => {
         membershipStart: data.start_date,
         planType: data.plan_type,
         transactions: [data.last_transaction],
-        membershipProgress: getMembershipProgress(data.start_date, data.end_date),
+        membershipProgress: getMembershipProgress(
+          data.start_date,
+          data.end_date
+        ),
       });
       setIsFetching(false);
     } catch (err) {
       console.error(err);
     }
   };
-
-
 
   useEffect(() => {
     fetchMembershipDetails();
@@ -175,14 +182,14 @@ const MyMembershipPage = () => {
                 transition={{ duration: 0.5 }}
                 className="grid grid-cols-2 gap-4 mt-4"
               >
-                {pageDetails.membership?.benefits?.map(
-                  (benefit: string, index: number) => (
+                {pageDetails.membership?.permissions?.map(
+                  (perm, index: number) => (
                     <div
                       key={index}
                       className="flex items-center gap-2 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm"
                     >
                       <FiCheckCircle className="text-green-500 dark:text-green-300" />
-                      <p>{benefit}</p>
+                      <p>{perm.label}</p>
                       <Tooltip content="More info" placement="top">
                         <FiInfo className="text-gray-400 dark:text-gray-500 cursor-pointer" />
                       </Tooltip>
@@ -194,7 +201,7 @@ const MyMembershipPage = () => {
               <div className="mt-6 flex gap-4">
                 <Button
                   color="blue"
-                  // onClick={openMembershipModal}
+                  onClick={openMembershipModal}
                   className="flex items-center gap-2"
                 >
                   Upgrade Membership <FiArrowUpRight className="h-4 w-4" />

@@ -297,10 +297,10 @@ function MultiSectionForm() {
       const { data } = await Register(formData);
       console.log(data);
       toast.success(data.detail);
+      navigate(`/registration-success`);
       reset();
-      navigate(`/registration-success/${formData.email}`);
     } catch (error: any) {
-      console.log(error);
+      console.log(error); 
       toast.error(error.message);
     } finally {
       setSectionLoading(false);

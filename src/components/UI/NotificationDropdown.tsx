@@ -31,6 +31,8 @@ export const NotificationDropdown = () => {
     };
 
     fetchNotifications();
+    const id = setInterval(fetchNotifications, 10000);
+    return ()=> clearInterval(id)
   }, []);
 
   return (
