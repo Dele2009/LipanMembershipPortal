@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Card, Label, TextInput, Select, Table } from "flowbite-react";
 import { HiOutlineDownload } from "react-icons/hi";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import axios from "../../config/axios";
+import { errorHandler } from "../../utils/api/errors";
 
 const transactions = [
   { id: 1, type: "Payment", amount: 50, date: "2025-04-01", status: "Completed" },
@@ -12,6 +14,7 @@ const transactions = [
 
 const TransactionsPage = () => {
   const [filterStatus, setFilterStatus] = useState("All");
+  const [isFetching, setIsFetching] = useState(true);
 
   const filteredTransactions = filterStatus === "All"
     ? transactions
@@ -39,6 +42,23 @@ const TransactionsPage = () => {
     });
     doc.save("transactions.pdf");
   };
+
+  const fetchTransactions = async () => {
+    setIsFetching(true)
+    try {
+      const { data } = await axios.get("/user/transactions");
+      console.log(data)
+    } catch (err) {
+      const errMsg = errorHandler(err)
+      console.log(errMsg)
+    } finally {
+      setIsFetching(false)
+    }
+  }
+
+  useEffect(() => {
+    
+  }, [])
 
   return (
     <div className="mx-auto">
