@@ -6,7 +6,8 @@ export interface UserType {
   email: string;
   phone: string;
   is_admin: boolean;
-  payment_status: "unpaid" | "paid" | "pending"
+  payment_status: "unpaid" | "paid" | "pending";
+  membership_detail: Record<string, any> | null;
 }
 
 export type Tokens = {

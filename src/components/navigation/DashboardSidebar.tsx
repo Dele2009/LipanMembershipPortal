@@ -10,6 +10,7 @@ export interface LinkType {
   icon: IconType;
   path?: string;
   isDisabled?: boolean;
+  permission_keys?: string[];
   dropdown?: LinkType[];
 }
 
@@ -38,12 +39,10 @@ function DashboardSidebar({ isOpen, links }: SidebarPropType) {
     );
   };
 
- 
-
   const btnActive = "bg-gray-100 dark:bg-gray-900 text-blue-600";
   const btnHover =
     "text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 hover:text-blue-600 dark:hover:text-blue-600";
-  const btnDisabled = `${btnHover} opacity-50`;
+  const btnDisabled = `${btnHover} opacity-30`;
   return (
     <>
       <div
@@ -77,6 +76,23 @@ function DashboardSidebar({ isOpen, links }: SidebarPropType) {
         <div className={`relative ${user?.is_admin ? "h-[70%]" : "h-[90%]"}`}>
           <nav className="mt-4 ml-3 flex flex-col max-h-[88%] app_sidebar overflow-hidden overflow-y-auto pb-48">
             {links.map((link, index) => {
+              let isNotAllowed = false
+               if (link.permission_keys && link.permission_keys.length > 0) {
+                 const userPermissions: string[] = Array.isArray(
+                   user?.membership_detail?.permissions
+                 )
+                   ? user.membership_detail.permissions.map(
+                       (per: any) => per.key
+                     )
+                   : [];
+
+                 const isAllowed = link.permission_keys.some((key) =>
+                   userPermissions.includes(key)
+                 );
+                 console.log(isAllowed)
+
+                 isNotAllowed = !isAllowed;
+               }
               if ("dropdown" in link) {
                 return (
                   <div className="relative" key={index}>
@@ -132,8 +148,10 @@ function DashboardSidebar({ isOpen, links }: SidebarPropType) {
                     placement="right"
                   >
                     <Link
-                      to={link.isDisabled ? "#" : link.path || "#" }
-                      className={`flex font-semibold !w-full rounded-tl-xl rounded-bl-xl items-center px-4 py-4 ${link.isDisabled ? btnDisabled : currentPath === (link.path?.trim().toLowerCase() ?? "") ? btnActive : btnHover} focus:outline-none`}
+                      to={
+                        link.isDisabled || isNotAllowed ? "no-access" : link.path || "#"
+                      }
+                      className={`flex font-semibold !w-full rounded-tl-xl rounded-bl-xl items-center px-4 py-4 ${link.isDisabled || isNotAllowed ? btnDisabled : currentPath === (link.path?.trim().toLowerCase() ?? "") ? btnActive : btnHover} focus:outline-none`}
                     >
                       <link.icon className="mr-3" size={20} />
                       <div className="w-full">

@@ -41,6 +41,7 @@ import MembershipCreateEditPage from "./pages/admin/ManageMembership";
 import { useAuth } from "./hooks/auth";
 import Cookies from "js-cookie";
 import AdminEventUsersPage from "./pages/admin/EventsUsers";
+import NotAccessPage from "./pages/members/NoAccess";
 
 function AppRoutes() {
   const { pathname } = useLocation();
@@ -106,6 +107,7 @@ function AppRoutes() {
         <Route path="transactions" element={<TransactionsPage />} />
         <Route path="help&support" element={<ContactAdminsPage />} />
         <Route path="profile" element={<ProfileAndSettings />} />
+        <Route path="no-access" element={<NotAccessPage />} />
       </Route>
 
       <Route path="/admin/login" element={<AdminLoginPage />} />

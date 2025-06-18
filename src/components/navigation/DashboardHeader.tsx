@@ -5,19 +5,19 @@ import { useAuth } from "../../hooks/auth";
 import ProfileToggle from "../UI/ProfileToggle";
 import { NotificationDropdown } from "../UI/NotificationDropdown";
 
-function DashboardHeader({ toggleSidebar }: { toggleSidebar: () => void }) {
+function DashboardHeader({ toggleSidebar, showToggle = true }: { toggleSidebar: () => void; showToggle?: boolean; }) {
   const { user } = useAuth()
  
   return (
     <>
       <header className="fixed z-40 flex h-16 w-full items-center justify-between bg-blue-700 px-6 lg:px-14 shadow-md">
         <div className="flex gap-3 items-center">
-          <button
+          {showToggle && <button
             onClick={toggleSidebar}
             className="text-white focus:outline-none lg:hidden"
           >
             <BiMenu size={35} />
-          </button>
+          </button>}
           <Logo className="h-6 lg:h-12" />
           <h2 className="sr-only">Dashboard</h2>
         </div>

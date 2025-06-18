@@ -53,12 +53,14 @@ function DashboardLayout() {
       icon: FiBookOpen,
       path: "my-journal",
       isDisabled,
+      permission_keys: ["can_publish_articles"],
     },
     {
       name: "My Resources",
       icon: FiBriefcase,
       path: "my-resources",
       isDisabled,
+      permission_keys: ["can_access_resources", "can_access_publications"],
     },
     {
       name: "My Invoices",
@@ -77,6 +79,7 @@ function DashboardLayout() {
       icon: FiSpeaker,
       path: "upcoming-events",
       isDisabled,
+      permission_keys: ["can_attend_conferences"],
     },
     {
       name: "Notifications",
@@ -141,13 +144,14 @@ function DashboardLayout() {
         />
       )}
       {/* Header */}
-      <DashboardHeader toggleSidebar={toggleSidebar} />
+      <DashboardHeader toggleSidebar={toggleSidebar} showToggle={!isDisabled} />
 
       {/* Main Content Area */}
       <div className="flex">
         {/* Sidebar */}
-        <DashboardSidebar isOpen={isSidebarOpen} links={SidebarLinks} />
-
+        {!isDisabled && (
+          <DashboardSidebar isOpen={isSidebarOpen} links={SidebarLinks} />
+        )}
         {/* Content Area */}
         <main className="bg-gray-100 dark:bg-gray-900  h-screen flex-auto overflow-y-auto p-6 pt-24">
           {isDisabled ? (
