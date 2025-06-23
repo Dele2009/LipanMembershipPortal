@@ -153,7 +153,7 @@ function DashboardLayout() {
           <DashboardSidebar isOpen={isSidebarOpen} links={SidebarLinks} />
         )}
         {/* Content Area */}
-        <main className="bg-gray-100 dark:bg-gray-900  h-screen flex-auto overflow-y-auto p-6 pt-24">
+        <main className="bg-gray-100 dark:bg-gray-900  h-screen flex-auto overflow-y-auto px-3 lg:px-6 pt-24">
           {isDisabled ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 max-w-lg w-full">

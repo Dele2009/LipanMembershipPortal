@@ -204,7 +204,7 @@ const MyMembershipPage = () => {
                   onClick={openMembershipModal}
                   className="flex items-center gap-2"
                 >
-                  Upgrade Membership <FiArrowUpRight className="h-4 w-4" />
+                  Change Membership <FiArrowUpRight className="h-4 w-4" />
                 </Button>
               </div>
             </Card>
@@ -223,7 +223,7 @@ const MyMembershipPage = () => {
                   <Table.HeadCell>Amount</Table.HeadCell>
                   <Table.HeadCell>Status</Table.HeadCell>
                 </Table.Head>
-                <Table.Body className="divide-y dark:divide-gray-700">
+                <Table.Body className="divide-y dark:divide-gray-700"> 
                   {pageDetails.transactions.map((tx) => (
                     <Table.Row
                       key={tx.id}

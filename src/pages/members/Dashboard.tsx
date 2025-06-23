@@ -15,14 +15,14 @@ import { PageMeta } from "../../utils/app/pageMetaValues";
 import axios from "../../config/axios";
 import { useEffect, useState } from "react";
 import { Skeleton } from "../../components/UI/Skeleton";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/auth";
 import { formatDate } from "../../utils/app/time";
 import {
   checkProfileCompletion,
   ProfileCheckResult,
 } from "../../utils/app/profile";
-import { toast } from "react-toastify";
+
 
 function MemberDashboard() {
   const { user } = useAuth();
@@ -32,23 +32,16 @@ function MemberDashboard() {
   const [profileCompletion, setProfileCompletion] =
     useState<ProfileCheckResult | null>(null);
 
-  const navigate = useNavigate();
-  const requiredField = [
-    "profile_pic",
-    "level_of_learners",
-    "areas_of_interest",
-  ];
+ 
 
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const [statResponse, profileResponse] = await Promise.all(
-        [
-          axios.get("/user/stats/"),
-          // axios.get("/events/me/?type=upcoming"),
-          axios.get("/auth/user/"),
-        ]
-      );
+      const [statResponse, profileResponse] = await Promise.all([
+        axios.get("/user/stats/"),
+        // axios.get("/events/me/?type=upcoming"),
+        axios.get("/auth/user/"),
+      ]);
       const profileRes = profileResponse.data;
       const completion = checkProfileCompletion(profileRes, [
         "id",
@@ -58,32 +51,15 @@ function MemberDashboard() {
         "is_admin",
         "is_staff",
         "membership_type",
+        "membership_detail",
         "payment_status",
         "plan_type",
+        "profile_pic",
+        "bio",
       ]);
-      console.log(profileRes, completion);
       setProfileCompletion(completion);
-      // setEvents(eventsResponse.data.slice(0, 2));
       setDashboard(statResponse.data);
       setLoading(false);
-
-      const noRequiredFields = requiredField.some((field) =>
-        completion.incompleteFields.includes(field)
-      );
-      // \n\n${requiredField.map(
-      //   (field) =>
-      //     `${field.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}, `
-      // )}
-      const hasAsked = JSON.parse(localStorage.getItem("hasAsked") || "false");
-      if (noRequiredFields && !hasAsked) {
-        localStorage.setItem("hasAsked", "true");
-        const msg = `Please complete your profile Information to enjoy your membership on lipan`;
-        navigate("/member/profile");
-        toast.info(msg, {
-          autoClose: false,
-          position: "top-center",
-        });
-      }
     } catch (err) {
       setDashboard(null);
       // Optionally show error UI
@@ -132,6 +108,7 @@ function MemberDashboard() {
           content="Access your dashboard to view recent activities, stats, and quick actions."
         />
       </PageMeta>
+      
       <div className="space-y-6">
         {/* Welcome Section */}
         <Card className="p-6 shadow-md">

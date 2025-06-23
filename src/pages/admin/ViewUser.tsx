@@ -18,6 +18,8 @@ import axios from "../../config/axios";
 import { toast } from "react-toastify";
 import { getInitails } from "../../utils/app/text";
 import { Skeleton } from "../../components/UI/Skeleton";
+import PasswordInput from "../../components/UI/PasswordInput";
+import { useAuth } from "../../hooks/auth";
 
 // 🔵 Validation Schema
 const profileSchema = yup.object().shape({
@@ -36,7 +38,28 @@ const profileSchema = yup.object().shape({
   membership_type: yup.string().nullable(),
 });
 
+const passwordSchema = yup.object().shape({
+  new_password1: yup
+    .string()
+    .min(6, "New password must be at least 6 characters")
+    .required("New password is required"),
+  new_password2: yup
+    .string()
+    .oneOf([yup.ref("new_password1")], "Passwords must match"),
+});
+
+type PasswordChangeType = yup.InferType<typeof passwordSchema>;
+
 export default function ViewUserPage() {
+  const auth = useAuth();
+  const {
+    register: registerPassword,
+    handleSubmit: handlePasswordSubmit,
+    reset: passwordReset,
+    formState: { errors: passwordErrors },
+  } = useForm({
+    resolver: yupResolver(passwordSchema),
+  });
   const { id, type } = useParams<{ id: string; type: string }>();
   const [user, setUser] = useState<any>(null);
   const [membershipMap, setMembershipMap] = useState<any>(null);
@@ -113,8 +136,34 @@ export default function ViewUserPage() {
     }
   };
 
+  const onChangePassword = async (data: PasswordChangeType) => {
+    const toastId = toast.loading("Changing Account Password....", {
+      position: "top-center",
+    });
+    try {
+      const response = await axios.post(
+        `/accounts/users/${id}/password/change/`,
+        data
+      );
+      passwordReset();
+      toast.update(toastId, {
+        render: response?.data?.detail || "Password change successfull",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    } catch (err: any) {
+      console.error(err);
+      toast.update(toastId, {
+        render: err?.response?.data?.detail || "Error changing password",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    }
+  };
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-8">
+    <div className="max-w-6xl mx-auto p-0 lg:p-6 space-y-8">
       {/* 🔵 Back Button */}
       <div className="flex items-center">
         <Button color="light" as={Link} to="/admin/manage-users">
@@ -124,7 +173,7 @@ export default function ViewUserPage() {
       </div>
 
       {/* 🔵 Profile Details */}
-      <Card className="p-6 border-0 !border-t-4 border-blue-600">
+      <Card className="border-0 !border-t-4 border-blue-600">
         {/* 🔵 Profile Header */}
         {isFetching ? (
           <>
@@ -184,7 +233,10 @@ export default function ViewUserPage() {
               <ProfileField label="Phone" value={user?.phone} />
               <ProfileField label="Gender" value={user?.gender} />
               <ProfileField label="Title" value={user?.title} />
-              <ProfileField label="Organization / Institution" value={user?.organization} />
+              <ProfileField
+                label="Organization / Institution"
+                value={user?.organization}
+              />
               <ProfileField
                 label="Mailing Address"
                 value={user?.mailing_address}
@@ -224,6 +276,41 @@ export default function ViewUserPage() {
           </>
         )}
       </Card>
+
+      {/* 🟣 Password Change Form */}
+      {auth.user?.is_superuser && user?.is_staff && (
+        <Card>
+          <h3 className="text-xl font-semibold text-gray-700 dark:text-white mb-4">
+            Change Password
+          </h3>
+
+          <form
+            onSubmit={handlePasswordSubmit(onChangePassword)}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-1 gap-3">
+              <div>
+                <Label value="New Password" />
+                <PasswordInput
+                  {...registerPassword("new_password1")}
+                  error={passwordErrors.new_password1}
+                />
+              </div>
+              <div>
+                <Label value="Confirm New Password" />
+                <PasswordInput
+                  {...registerPassword("new_password2")}
+                  error={passwordErrors.new_password2}
+                />
+              </div>
+            </div>
+
+            <Button color="blue" type="submit" fullSized>
+              Update Password
+            </Button>
+          </form>
+        </Card>
+      )}
 
       {/* 🔵 Edit Modal */}
       <Modal

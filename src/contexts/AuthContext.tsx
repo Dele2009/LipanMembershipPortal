@@ -1,13 +1,8 @@
 // src/context/AuthContext.tsx
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { isTokenExpired } from "../utils/app/time";
-import { Modal, Button } from "flowbite-react";
-import {
-  FaExclamationTriangle,
-  FaSignOutAlt,
-  FaTimesCircle,
-} from "react-icons/fa";
+
 import axios from "../config/axios";
 import {
   AuthContext,
@@ -15,6 +10,11 @@ import {
   Tokens,
   UserType,
 } from "./createContexts/auth";
+import IncompleteProfileModal from "../components/UI/IncompleteProfileModal";
+import { useLocation, useNavigate } from "react-router-dom";
+import { checkProfileCompletion } from "../utils/app/profile";
+import useProfileCompletionGuard from "../hooks/useProfileCheck";
+import LogoutModal from "../components/UI/LogoutModal";
 
 type AuthState = {
   user: UserType | null;
@@ -79,6 +79,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 
 const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Helper functions
   const setAuthCookies = (user: UserType, tokens: Tokens) => {
@@ -140,46 +141,42 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch({ type: "LOGOUT" });
   };
 
+  const runUserProfileCompletionCheck = async () => {
+    const requiredField = ["level_of_learners", "areas_of_interest"];
+    try {
+      const [profileResponse] = await Promise.all([axios.get("/auth/user/")]);
+      const profileRes = profileResponse.data;
+      const completion = checkProfileCompletion(profileRes, [
+        "id",
+        "created_at",
+        "updated_at",
+        "is_active",
+        "is_admin",
+        "is_staff",
+        "membership_type",
+        "membership_detail",
+        "payment_status",
+        "plan_type",
+        "profile_pic",
+        "bio",
+      ]);
+
+      if (completion.incompleteFields.length) {
+        setIsOpen(true);
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
+
+
+  useProfileCompletionGuard(isOpen, runUserProfileCompletionCheck);
+
   const showLogoutModal = () => dispatch({ type: "SHOW_LOGOUT_MODAL" });
   const hideLogoutModal = () => dispatch({ type: "HIDE_LOGOUT_MODAL" });
 
   // Logout Modal Component
-  const LogoutModal = () => (
-    <Modal
-      show={state.showLogoutModal}
-      onClose={hideLogoutModal}
-      position="center"
-      size="md"
-    >
-      <Modal.Body className="text-center">
-        <div className="flex justify-center items-center size-24 mx-auto mb-4 rounded-full bg-[#ff0000]/20">
-          <FaExclamationTriangle className="text-[#ff0000] text-5xl" />
-        </div>
-        <p className="text-gray-400 text-md">
-          Are you sure you want to log out?
-        </p>
-        <div className="flex justify-center gap-4 mt-6">
-          <Button
-            size="md"
-            color="gray"
-            className="!text-gray-800 dark:!text-white"
-            onClick={hideLogoutModal}
-          >
-            <FaTimesCircle className="h-6 mr-3 text-lg" />
-            Cancel
-          </Button>
-          <Button
-            size="md"
-            className="!bg-[#ff0000] hover:!bg-[#ff0000]/80"
-            onClick={logout}
-          >
-            <FaSignOutAlt className="h-6 text-white mr-3 text-lg" />
-            Logout
-          </Button>
-        </div>
-      </Modal.Body>
-    </Modal>
-  );
+  
 
   return (
     <AuthContext.Provider
@@ -192,7 +189,15 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       {children}
-      <LogoutModal />
+      <LogoutModal
+        isOpen={state.showLogoutModal}
+        onClose={hideLogoutModal}
+        onLogout={logout}
+      />
+      <IncompleteProfileModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      />
     </AuthContext.Provider>
   );
 };

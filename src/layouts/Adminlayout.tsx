@@ -53,7 +53,7 @@ function AdminLayout() {
       path: "notifications",
     },
     {
-      name: "User Reports",
+      name: "Messages",
       icon: FiMail,
       path: "user-reports",
     },
@@ -109,7 +109,7 @@ function AdminLayout() {
         <DashboardSidebar isOpen={isSidebarOpen} links={SidebarLinks} />
 
         {/* Content Area */}
-        <main className="bg-gray-100 dark:bg-gray-900  h-screen flex-auto overflow-y-auto p-6 pt-24">
+        <main className="bg-gray-100 dark:bg-gray-900  h-screen flex-auto overflow-y-auto px-3 lg:px-6 pt-24">
           <Outlet />
         </main>
       </div>

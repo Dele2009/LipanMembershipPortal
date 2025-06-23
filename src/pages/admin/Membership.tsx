@@ -67,7 +67,7 @@ export default function AdminMembershipsListPage() {
       <div className="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <h1 className="text-3xl font-bold">Membership Plans</h1>
         <Button color="blue" as={Link} to="/admin/memberships/create">
-          + Add Membership
+          + Add Membership Plan
         </Button>
       </div>
 

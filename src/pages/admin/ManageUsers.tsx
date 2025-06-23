@@ -38,6 +38,7 @@ import SelectableSection from "../../components/UI/SelectionCard";
 import { getInitails } from "../../utils/app/text";
 import { BsCheckAll, BsDatabase } from "react-icons/bs";
 import { errorHandler } from "../../utils/api/errors";
+import { useAuth } from "../../hooks/auth";
 
 type User = {
   id: number;
@@ -74,6 +75,7 @@ const userTabMap = {
 type UserMapType = keyof typeof userTabMap;
 
 const UserManagementPage = () => {
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const page = Number(searchParams.get("page")) || 1;
@@ -176,6 +178,7 @@ const UserManagementPage = () => {
         response.data.detail ||
           `${data.is_staff ? "Admin" : "User"} added successfully!`
       );
+      
       fetchUsers(); // Refresh the user list after adding a new user
     } catch (err: any) {
       const errMsg = errorHandler(err);
@@ -295,28 +298,30 @@ const UserManagementPage = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto max-w-md m-auto">
-        <Tabs
-          aria-label="Full width tabs"
-          style="fullWidth"
-          onActiveTabChange={(tab) =>
-            onUserTypeChange(String(tab) as UserMapType)
-          }
-        >
-          <TabItem
-            active={user_type === "users"}
-            disabled={loading}
-            title="Members"
-            icon={FaUser}
-          />
-          <TabItem
-            active={user_type === "admins"}
-            disabled={loading}
-            title="Administrators"
-            icon={FaUserShield}
-          />
-        </Tabs>
-      </div>
+      {user?.is_superuser && (
+        <div className="overflow-x-auto max-w-md m-auto">
+          <Tabs
+            aria-label="Full width tabs"
+            style="fullWidth"
+            onActiveTabChange={(tab) =>
+              onUserTypeChange(String(tab) as UserMapType)
+            }
+          >
+            <TabItem
+              active={user_type === "users"}
+              disabled={loading}
+              title="Members"
+              icon={FaUser}
+            />
+            <TabItem
+              active={user_type === "admins"}
+              disabled={loading}
+              title="Administrators"
+              icon={FaUserShield}
+            />
+          </Tabs>
+        </div>
+      )}
 
       {/* Table */}
       <div className="overflow-x-auto rounded-lg shadow-sm">
@@ -578,40 +583,42 @@ const UserManagementPage = () => {
                 />
               </div>
             </div>
-            <div className="space-y-3">
-              <Label value="User Type" />
-              <SelectableSection
-                options={[
-                  {
-                    id: false,
-                    label: "Member",
-                    icon: <FaUser />,
-                  },
-                  {
-                    id: true,
-                    label: "Admin",
-                    icon: <FaUserShield />,
-                  },
-                ]}
-                onChange={(val) => setValue("is_staff", val as boolean)}
-                allowBooleanToggle
-                value={watch("is_staff")}
-                renderItem={(item, isSelected) => (
-                  <div
-                    className={`w-[90px] rounded-md cursor-pointer bg-gray-200 dark:bg-gray-800 p-3 ${isSelected ? "border-2 border-blue-600 !text-blue-600" : "border"}`}
-                  >
+            {user?.is_superuser && (
+              <div className="space-y-3">
+                <Label value="User Type" />
+                <SelectableSection
+                  options={[
+                    {
+                      id: false,
+                      label: "Member",
+                      icon: <FaUser />,
+                    },
+                    {
+                      id: true,
+                      label: "Admin",
+                      icon: <FaUserShield />,
+                    },
+                  ]}
+                  onChange={(val) => setValue("is_staff", val as boolean)}
+                  allowBooleanToggle
+                  value={watch("is_staff")}
+                  renderItem={(item, isSelected) => (
                     <div
-                      className={`text-4xl ${isSelected ? "text-blue-600" : "text-gray-500"} m-auto w-fit`}
+                      className={`w-[90px] rounded-md cursor-pointer bg-gray-200 dark:bg-gray-800 p-3 ${isSelected ? "border-2 border-blue-600 !text-blue-600" : "border"}`}
                     >
-                      {item.icon}
+                      <div
+                        className={`text-4xl ${isSelected ? "text-blue-600" : "text-gray-500"} m-auto w-fit`}
+                      >
+                        {item.icon}
+                      </div>
+                      <p className="text-xs font-semibold text-center dark:text-gray-200">
+                        {item.label}
+                      </p>
                     </div>
-                    <p className="text-xs font-semibold text-center dark:text-gray-200">
-                      {item.label}
-                    </p>
-                  </div>
-                )}
-              />
-            </div>
+                  )}
+                />
+              </div>
+            )}
             <div className="flex justify-end gap-3 mt-3">
               <Button
                 color="gray"

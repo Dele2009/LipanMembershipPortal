@@ -54,13 +54,15 @@ export const NotificationDropdown = () => {
           <span className="font-semibold text-sm">Notifications</span>
         </Dropdown.Header>
 
-        {!isLoading && notifications.length === 0 && (
+        {notifications.length === 0 && (
           <Dropdown.Item>
-            <span className="text-gray-500 text-sm">No notifications</span>
+            <span className="text-gray-500 text-sm">
+              No unread notifications
+            </span>
           </Dropdown.Item>
         )}
 
-        {!isLoading &&
+        {notifications.length &&
           notifications.map((notification) => (
             <Dropdown.Item
               key={notification.id}
@@ -79,11 +81,7 @@ export const NotificationDropdown = () => {
 
         <Dropdown.Divider />
 
-        {isLoading ? (
-          <div className="w-full flex justify-center items-center">
-            <Spinner />
-          </div>
-        ) : (
+        {notifications.length && (
           <Dropdown.Item>
             <Link
               to="notifications"
